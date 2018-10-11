@@ -8,13 +8,26 @@ const es3Dist = path.resolve(__dirname, "temp");
 const tsConfigPath = path.resolve(__dirname, "tsconfig.json");
 
 class ES3Plugin {
+  /**
+   * @param {object=} option
+   * @param {number=} option.waitFor
+   */
+  constructor(option = {}) {
+    const { waitFor } = option;
+    this.waitFor = waitFor;
+  }
   apply(compiler) {
-    compiler.hooks.done.tap("ES3Plugin", ({ compilation }) => {
+    compiler.hooks.done.tap("ES3Plugin", async ({ compilation }) => {
       const {
         options: {
           output: { path: outputPath }
         }
       } = compilation;
+      if (typeof this.waitFor === "number") {
+        await new Promise(resolve => {
+          setTimeout(resolve, this.waitFor);
+        });
+      }
       // update include
       tsConfig.include = [`${outputPath}/**/*.js`];
       tsConfig.compilerOptions.outDir = es3Dist;
