@@ -9,7 +9,7 @@ const tsConfigPath = path.resolve(__dirname, "tsconfig.json");
 
 class ES3Plugin {
   apply(compiler) {
-    compiler.hooks.afterEmit.tap("ES3Plugin", compilation => {
+    compiler.hooks.done.tap("ES3Plugin", ({ compilation }) => {
       const {
         options: {
           output: { path: outputPath }
