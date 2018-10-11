@@ -4,8 +4,9 @@ const { spawnSync } = require("child_process");
 const path = require("path");
 const tsConfig = require("./tsconfig.json");
 const { name } = require("./package.json");
-const es3Dist = path.resolve(__dirname, "temp");
-const tsConfigPath = path.resolve(__dirname, "tsconfig.json");
+const normalize = location => location.split(path.delimiter).join("/");
+const es3Dist = normalize(path.resolve(__dirname, "temp"));
+const tsConfigPath = normalize(path.resolve(__dirname, "tsconfig.json"));
 
 class ES3Plugin {
   /**
@@ -28,9 +29,10 @@ class ES3Plugin {
           setTimeout(resolve, this.waitFor);
         });
       }
-      // update include
+      // update input setting
       tsConfig.include = [`${outputPath}/**/*.js`];
       tsConfig.compilerOptions.outDir = es3Dist;
+      tsConfig.compilerOptions.rootDir = outputPath;
       // update tsconfig.json
       fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       console.log(
@@ -41,6 +43,7 @@ class ES3Plugin {
       fse.removeSync(es3Dist);
       // delete unneeded fields
       delete tsConfig.compilerOptions.outDir;
+      delete tsConfig.compilerOptions.rootDir;
       delete tsConfig.include;
       fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       console.log(`[${name}]: done`);
