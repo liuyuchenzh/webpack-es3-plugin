@@ -8,7 +8,8 @@ Convert emitted Javascript files by webpack to es3 format
 
 ## Notice
 
-Designed for webpack v4
+- Designed for webpack v4
+- Need to set `loose` to `true` in your `@babel/env-preset`
 
 ## Installation
 
