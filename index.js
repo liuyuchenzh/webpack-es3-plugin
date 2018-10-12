@@ -8,8 +8,9 @@ const { updateGetter } = require("./src/util/updateGetter");
 const { read, write } = require("./src/util/io");
 const tsConfig = require("./tsconfig.json");
 const { name } = require("./package.json");
-const es3Dist = path.resolve(__dirname, "temp");
-const tsConfigPath = path.resolve(__dirname, "tsconfig.json");
+const normalize = location => location.split(path.delimiter).join("/");
+const es3Dist = normalize(path.resolve(__dirname, "temp"));
+const tsConfigPath = normalize(path.resolve(__dirname, "tsconfig.json"));
 
 class ES3Plugin {
   /**
@@ -49,8 +50,10 @@ class ES3Plugin {
       });
       // use typescript to convert es5 to es3
       // update include
+      // update input setting
       tsConfig.include = [`${outputPath}/**/*.js`];
       tsConfig.compilerOptions.outDir = es3Dist;
+      tsConfig.compilerOptions.rootDir = outputPath;
       // update tsconfig.json
       write(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       spawnSync("npx", ["tsc", "-p", tsConfigPath]);
@@ -58,6 +61,7 @@ class ES3Plugin {
       fse.removeSync(es3Dist);
       // delete unneeded fields
       delete tsConfig.compilerOptions.outDir;
+      delete tsConfig.compilerOptions.rootDir;
       delete tsConfig.include;
       write(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       console.log(`[${name}]: done`);
