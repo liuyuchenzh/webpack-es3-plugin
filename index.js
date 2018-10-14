@@ -1,52 +1,52 @@
-const fs = require("fs");
 const fse = require("fs-extra");
 const { spawnSync } = require("child_process");
 const path = require("path");
-const { findGetter } = require("./src/babel/findGetter");
-const { gatherFile } = require("./src/util/gatherFile");
-const { updateGetter } = require("./src/util/updateGetter");
 const { read, write } = require("./src/util/io");
 const tsConfig = require("./tsconfig.json");
 const { name } = require("./package.json");
 const normalize = location => location.split(path.delimiter).join("/");
 const es3Dist = normalize(path.resolve(__dirname, "temp"));
 const tsConfigPath = normalize(path.resolve(__dirname, "tsconfig.json"));
+const shim = path.resolve(__dirname, "./src/util/defineProperty.js");
+const shimContent = read(shim);
 
 class ES3Plugin {
   /**
    * @param {object=} option
-   * @param {number=} option.waitFor
+   * @param {number=|function<Promise<*>>} option.waitFor
    */
   constructor(option = {}) {
-    const { waitFor } = option;
+    const { waitFor = () => Promise.resolve(), onFinish = () => {} } = option;
     this.waitFor = waitFor;
+    this.onFinish = onFinish;
   }
   apply(compiler) {
     compiler.hooks.done.tap("ES3Plugin", async ({ compilation }) => {
       const {
         options: {
           output: { path: outputPath }
-        }
+        },
+        assets
       } = compilation;
       if (typeof this.waitFor === "number") {
         await new Promise(resolve => {
           setTimeout(resolve, this.waitFor);
         });
+      } else {
+        await this.waitFor();
       }
       console.log(
         `[${name}]: start to convert js files into es3 compatible...`
       );
       // gather all js files
-      const jsFiles = gatherFile(outputPath, "js");
+      const jsFiles = Object.values(assets)
+        .map(item => item.existsAt)
+        .filter(item => path.extname(item) === ".js");
       // check js
       jsFiles.forEach(file => {
         const content = read(file);
-        // whether or not use the evil getter
-        const occur = findGetter(content);
-        if (occur.length) {
-          const newContent = updateGetter(content, occur);
-          write(file, newContent);
-        }
+        const newContent = `${shimContent}\n${content}`;
+        write(file, newContent);
       });
       // use typescript to convert es5 to es3
       // update include
@@ -65,6 +65,7 @@ class ES3Plugin {
       delete tsConfig.include;
       write(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       console.log(`[${name}]: done`);
+      this.onFinish();
     });
   }
 }
