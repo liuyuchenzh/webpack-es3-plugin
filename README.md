@@ -10,7 +10,13 @@ Convert emitted Javascript files by webpack to es3 format
 
 - Designed for webpack v4
 - Set `mode` to `"none"`
-- Recommend to set `loose` to `true` in your `@babel/env-preset`, but NOT a must
+- If using `babel-loader`, then set `loose` to `true` and `modules` to `"commonjs"` in your `@babel/env-preset`
+
+```json
+{
+  "presets": [["@babel/preset-env", { "loose": true, "modules": "commonjs" }]]
+}
+```
 
 ## Installation
 
