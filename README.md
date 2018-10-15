@@ -40,7 +40,7 @@ module.exports = {
 
 No field is needed by default.
 
-### [waitFor=Promise.resolve()]
+### [waitFor=() => Promise.resolve()]
 
 ```ts
 type waitFor = number | () => Promise<any>;
