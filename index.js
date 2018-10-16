@@ -24,7 +24,8 @@ class ES3Plugin {
     compiler.hooks.done.tap("ES3Plugin", async ({ compilation }) => {
       const {
         options: {
-          output: { path: outputPath }
+          output: { path: outputPath },
+          mode
         },
         assets
       } = compilation;
@@ -34,6 +35,13 @@ class ES3Plugin {
         });
       } else {
         await this.waitFor();
+      }
+      if (mode === "production") {
+        console.warn(
+          `[${name}]: WARNING! Using "production" mode in webpack config!`
+        );
+        console.warn(`[${name}]: Switch it to "none"!`);
+        console.warn(`[${name}]: Error will be thrown for future release!`);
       }
       console.log(
         `[${name}]: start to convert js files into es3 compatible...`
