@@ -9,7 +9,7 @@ Convert emitted Javascript files by webpack to es3 format
 ## Notice
 
 - Designed for webpack v4
-- Set `mode` to `"none"`
+- Set `optimization.minimize` to `false`
 - If using `babel-loader`, then set `loose` to `true` and `modules` to `"commonjs"` in your `@babel/env-preset`
 
 ```json
