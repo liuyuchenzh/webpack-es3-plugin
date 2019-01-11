@@ -25,7 +25,9 @@ class ES3Plugin {
       const {
         options: {
           output: { path: outputPath },
-          mode
+          optimization: {
+            minimize
+          } = {}
         },
         assets
       } = compilation;
@@ -36,11 +38,11 @@ class ES3Plugin {
       } else {
         await this.waitFor();
       }
-      if (mode === "production") {
+      if (minimize === true) {
         console.warn(
-          `[${name}]: WARNING! Using "production" mode in webpack config!`
+          `[${name}]: WARNING! Using optimization.minimize in webpack config!`
         );
-        console.warn(`[${name}]: Switch it to "none"!`);
+        console.warn(`[${name}]: Switch it to false!`);
         console.warn(`[${name}]: Error will be thrown for future release!`);
       }
       console.log(
