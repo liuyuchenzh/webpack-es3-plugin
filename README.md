@@ -1,5 +1,7 @@
 # webpack-es3-plugin
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/liuyuchenzh/webpack-es3-plugin.svg)](https://greenkeeper.io/)
+
 As the name suggested
 
 ## Intro
