@@ -66,7 +66,9 @@ class ES3Plugin {
       tsConfig.compilerOptions.rootDir = outputPath;
       // update tsconfig.json
       write(tsConfigPath, JSON.stringify(tsConfig, null, 2));
-      spawnSync("npx", ["tsc", "-p", tsConfigPath]);
+      spawnSync("npx", ["tsc", "-p", tsConfigPath], {
+        shell: true
+      });
       fse.copySync(es3Dist, outputPath);
       fse.removeSync(es3Dist);
       // delete unneeded fields
