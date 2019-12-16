@@ -21,13 +21,11 @@ class ES3Plugin {
     this.onFinish = onFinish;
   }
   apply(compiler) {
-    compiler.hooks.done.tap("ES3Plugin", async ({ compilation }) => {
+    compiler.hooks.done.tapPromise("ES3Plugin", async ({ compilation }) => {
       const {
         options: {
           output: { path: outputPath },
-          optimization: {
-            minimize
-          } = {}
+          optimization: { minimize } = {}
         },
         assets
       } = compilation;
