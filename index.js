@@ -1,10 +1,11 @@
 const fse = require("fs-extra");
 const { spawnSync } = require("child_process");
+const { existsSync } = require("fs");
 const path = require("path");
 const { read, write } = require("./src/util/io");
 const tsConfig = require("./tsconfig.json");
 const { name } = require("./package.json");
-const normalize = location => location.split(path.delimiter).join("/");
+const normalize = (location) => location.split(path.delimiter).join("/");
 const es3Dist = normalize(path.resolve(__dirname, "temp"));
 const tsConfigPath = normalize(path.resolve(__dirname, "tsconfig.json"));
 const shim = path.resolve(__dirname, "./src/util/defineProperty.js");
@@ -25,12 +26,12 @@ class ES3Plugin {
       const {
         options: {
           output: { path: outputPath },
-          optimization: { minimize } = {}
+          optimization: { minimize } = {},
         },
-        assets
+        assets,
       } = compilation;
       if (typeof this.waitFor === "number") {
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
           setTimeout(resolve, this.waitFor);
         });
       } else {
@@ -48,10 +49,12 @@ class ES3Plugin {
       );
       // gather all js files
       const jsFiles = Object.values(assets)
-        .map(item => item.existsAt)
-        .filter(item => path.extname(item) === ".js");
+        .map((item) => item.existsAt)
+        .filter(Boolean)
+        .filter((item) => path.extname(item) === ".js")
+        .filter((location) => existsSync(location));
       // check js
-      jsFiles.forEach(file => {
+      jsFiles.forEach((file) => {
         const content = read(file);
         const newContent = `${shimContent}\n${content}`;
         write(file, newContent);
@@ -65,7 +68,7 @@ class ES3Plugin {
       // update tsconfig.json
       write(tsConfigPath, JSON.stringify(tsConfig, null, 2));
       spawnSync("npx", ["tsc", "-p", tsConfigPath], {
-        shell: true
+        shell: true,
       });
       fse.copySync(es3Dist, outputPath);
       fse.removeSync(es3Dist);
