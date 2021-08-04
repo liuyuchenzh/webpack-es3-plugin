@@ -70,6 +70,7 @@ class ES3Plugin {
       spawnSync("npx", ["tsc", "-p", tsConfigPath], {
         shell: true,
       });
+      fse.ensureDirSync(es3Dist);
       fse.copySync(es3Dist, outputPath);
       fse.removeSync(es3Dist);
       // delete unneeded fields
